@@ -1,26 +1,43 @@
 const { ethers } = require('ethers');
+const readline = require('readline');
 
 // Configurar el proveedor para conectar a Ganache
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-// Clave privada de una cuenta preconfigurada de Ganache con suficientes fondos
-const senderPrivateKey = '0x8efb2523b8c817c828b2875796d72e159d8c087e4b37a0470535de3abd446437';
-const senderWallet = new ethers.Wallet(senderPrivateKey, provider);
+// Configurar readline para entrada del usuario
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-// Dirección de la wallet creada
-const receiverAddress = ' 0x08194E0C190BA466d9c3Ed0b0C72ea7e009EDA85'; // Dirección de la wallet creada
+function askQuestion(query) {
+  return new Promise(resolve => rl.question(query, resolve));
+}
 
 async function sendTransaction() {
+  const senderPrivateKey = await askQuestion('Introduce la clave privada de la cuenta remitente: ');
+  const receiverAddress = await askQuestion('Introduce la dirección de la cuenta receptora: ');
+  const amount = await askQuestion('Introduce la cantidad a enviar (en ETH): ');
+
+  // Crear el objeto de la billetera del remitente
+  const senderWallet = new ethers.Wallet(senderPrivateKey.trim(), provider);
+
   const tx = {
-    to: receiverAddress,
-    value: ethers.utils.parseEther('1.0'), // 1 ETH
+    to: receiverAddress.trim(),
+    value: ethers.utils.parseEther(amount.trim()), // Convertir la cantidad a ETH
     gasLimit: 21000,
     gasPrice: ethers.utils.parseUnits('10', 'gwei')
   };
 
-  const transaction = await senderWallet.sendTransaction(tx);
-  await transaction.wait(); // Esperar a que la transacción sea minada
-  console.log(`Transaction Hash: ${transaction.hash}`);
+  try {
+    const transaction = await senderWallet.sendTransaction(tx);
+    await transaction.wait(); // Esperar a que la transacción sea minada
+    console.log(`Transaction Hash: ${transaction.hash}`);
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    rl.close();
+  }
 }
 
 sendTransaction();
