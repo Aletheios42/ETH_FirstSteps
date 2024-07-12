@@ -4,11 +4,11 @@ const { ethers } = require('ethers');
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 // Clave privada de una cuenta preconfigurada de Ganache con suficientes fondos
-const senderPrivateKey = '0xa30f74765381093ee341e0980759e5a19cc077405f200d421201c42d0c05fce8';
+const senderPrivateKey = '0x8efb2523b8c817c828b2875796d72e159d8c087e4b37a0470535de3abd446437';
 const senderWallet = new ethers.Wallet(senderPrivateKey, provider);
 
 // Dirección de la wallet creada
-const receiverAddress = '0x7daE8782878B3129784167cBDC42daC67bE30B8d'; // Dirección de la wallet creada
+const receiverAddress = ' 0x08194E0C190BA466d9c3Ed0b0C72ea7e009EDA85'; // Dirección de la wallet creada
 
 async function sendTransaction() {
   const tx = {

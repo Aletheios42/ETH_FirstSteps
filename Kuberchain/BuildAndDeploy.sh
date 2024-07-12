@@ -5,7 +5,7 @@ read -p "Introduce tu Project ID de GCP: " PROJECT_ID
 
 # Construir y subir la imagen de Ganache
 echo "Construyendo y subiendo la imagen de Ganache..."
-docker build -t gcr.io/$PROJECT_ID/ganache ./Nodo
+docker build -t gcr.io/$PROJECT_ID/ganache ./Node
 docker push gcr.io/$PROJECT_ID/ganache
 
 # Construir y subir la imagen del Orquestador
