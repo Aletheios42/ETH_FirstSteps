@@ -1,26 +1,26 @@
-// Funciones de encriptación básica (no usar en producción)
+// src/utils/persistWallet.js
+import CryptoJS from 'crypto-js';
+
 function encrypt(data, password) {
-    return btoa(data); // Simple encriptación para el ejemplo
+  return CryptoJS.AES.encrypt(data, password).toString();
+}
+
+function decrypt(data, password) {
+  const bytes = CryptoJS.AES.decrypt(data, password);
+  return bytes.toString(CryptoJS.enc.Utf8);
+}
+
+function savePrivateKey(privateKey, password) {
+  const encryptedKey = encrypt(privateKey, password);
+  localStorage.setItem('encryptedPrivateKey', encryptedKey);
+}
+
+function loadPrivateKey(password) {
+  const encryptedKey = localStorage.getItem('encryptedPrivateKey');
+  if (!encryptedKey) {
+    return null;
   }
-  
-  function decrypt(data, password) {
-    return atob(data); // Simple desencriptación para el ejemplo
-  }
-  
-  // Guardar clave privada en localStorage
-  function savePrivateKey(privateKey, password) {
-    const encryptedKey = encrypt(privateKey, password);
-    localStorage.setItem('encryptedPrivateKey', encryptedKey);
-  }
-  
-  // Cargar clave privada de localStorage
-  function loadPrivateKey(password) {
-    const encryptedKey = localStorage.getItem('encryptedPrivateKey');
-    if (!encryptedKey) {
-      return null;
-    }
-    return decrypt(encryptedKey, password);
-  }
-  
-  module.exports = { savePrivateKey, loadPrivateKey };
-  
+  return decrypt(encryptedKey, password);
+}
+
+export { savePrivateKey, loadPrivateKey };
