@@ -1,5 +1,8 @@
 {
-  "presets": ["react-app"],
+  "presets": [
+    "react-app",
+    "@babel/preset-react"
+  ],
   "plugins": [
     ["@babel/plugin-transform-class-properties", { "loose": true }],
     ["@babel/plugin-transform-private-methods", { "loose": true }],
