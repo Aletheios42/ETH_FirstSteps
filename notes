@@ -1,0 +1,91 @@
+# Tutorial: Ejercicio de Hello World en Truffle
+
+## 1. Crear la estructura de carpetas y el archivo HelloWorld.sol
+
+mkdir ETH_FirstSteps
+cd ETH_FirstSteps
+mkdir contracts migrations test
+touch contracts/HelloWorld.sol
+
+
+### 2. Escribir el contrato HelloWorld.sol
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract HelloWorld {
+    string public greet = "Hello, World!";
+}
+3. Inicializar el proyecto en Truffle
+sh
+Copy code
+truffle init
+4. Crear el script de migración
+touch migrations/2_deploy_hello_world.js
+Escribir el script de migración
+const HelloWorld = artifacts.require("HelloWorld");
+
+module.exports = function (deployer) {
+  deployer.deploy(HelloWorld);
+};
+5. Compilar los contratos
+truffle compile
+6. Iniciar Ganache
+ganache-cli
+7. Migrar los contratos
+truffle migrate
+8. Iniciar la consola de Truffle
+truffle console
+
+
+
+
+
+
+
+
+
+
+
+9. escribir linea por linea estos comandos en la consola de truffle:
+
+1. Obtener la Instancia de un Contrato Desplegado:
+   let instance = await HelloWorld.deployed();
+
+2. Llamar a una Función del Contrato:
+   let greeting = await instance.greet();
+   console.log(greeting); // Debería mostrar "Hello, World!"
+
+
+10 . jugar con truffle para comprobar las funcionalidades
+3. Enviar una Transacción:
+   await instance.setGreet("Hello, Ethereum!", { from: web3.eth.accounts[0] });
+
+4. Obtener Cuentas Disponibles:
+   let accounts = await web3.eth.getAccounts();
+   console.log(accounts);
+
+5. Ver el Balance de una Cuenta:
+   let balance = await web3.eth.getBalance(accounts[0]);
+   console.log(web3.utils.fromWei(balance, 'ether') + " ETH");
+
+6. Enviar Ether de una Cuenta a Otra:
+   await web3.eth.sendTransaction({ from: accounts[0], to: accounts[1], value: web3.utils.toWei('1', 'ether') });
+
+7. Ver el Historial de Transacciones del Último Bloque:
+   let block = await web3.eth.getBlock('latest');
+   console.log(block.transactions);
+
+8. Ver los Detalles de una Transacción Específica:
+   let txHash = block.transactions[0];
+   let tx = await web3.eth.getTransaction(txHash);
+   console.log(tx);
+
+9. Ver los Logs del Contrato:
+   let logs = await instance.getPastEvents('allEvents', {
+       fromBlock: 0,
+       toBlock: 'latest'
+   });
+   console.log(logs);
+
