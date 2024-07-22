@@ -5,6 +5,8 @@ pragma solidity ^0.8.18;
 
 import {PriceConverter} from "./priceConverter.sol";
 
+error NotOwner();
+
 contract FundMe {
     using PriceConverter for uint256;
 
@@ -26,8 +28,7 @@ contract FundMe {
         addressToAmount[msg.sender] += msg.value;
     }
 
-    function Witdthaw () public {
-        require(msg.sender == owner, "You are not the owner");
+    function Witdthaw () public onlyOwner {
         for (uint funderIndex = 0; funderIndex < funders.length; funderIndex++) {
             address funder = funders[funderIndex];
             addressToAmount[funder] = 0;
@@ -42,6 +43,21 @@ contract FundMe {
         (bool callSucces, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSucces, "call failed");
 
+    }
+
+        modifier onlyOwner() {
+        if(msg.sender == owner) {
+            revert NotOwner();
+        }
+        _;
+    }
+
+    receive() external payable {
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
     }
 
 }
