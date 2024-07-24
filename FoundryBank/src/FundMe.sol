@@ -10,7 +10,7 @@ error NotOwner();
 contract FundMe {
     using PriceConverter for uint256;
 
-    uint minUSD = 5e18;
+    uint public MIN_USD = 5e18;
 
 
     address[] public funders;
@@ -23,7 +23,7 @@ contract FundMe {
     }
 
     function fund() public payable { 
-        require(msg.value.getConversionRate() >= minUSD, "Not enough funds");
+        require(msg.value.getConversionRate() >= MIN_USD, "Not enough funds");
         funders.push(msg.sender);
         addressToAmount[msg.sender] += msg.value;
     }
