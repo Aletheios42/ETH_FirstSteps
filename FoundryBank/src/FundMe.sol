@@ -1,31 +1,11 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
 
+pragma solidity ^0.8.18;
+
+
+import {PriceConverter} from "./priceConverter.sol";
 
 error NotOwner();
-
-//REMIX AUTOMATICALLY LOOK FOR NPM RESOURCES, THAT S WHY THIS IMPORT WORKS
-import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-
-library PriceConverter {
-        function getPrice() internal view returns(uint) {
-        //address 0xfEefF7c3fB57d18C5C6Cdd71e45D2D0b4F9377bF from https://docs.chain.link/data-feeds/price-feeds/addresses?network=zksync&page=1
-        //abi chainlink registry contracto to see actual price
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(0xfEefF7c3fB57d18C5C6Cdd71e45D2D0b4F9377bF);
-        (,int256 price,,,) = priceFeed.latestRoundData();
-       return uint256 (price * 1e10);
-    }
-    function getVersion() internal view returns (uint) {
-        return  AggregatorV3Interface(0xfEefF7c3fB57d18C5C6Cdd71e45D2D0b4F9377bF).version();
-    }
-
-    function getConversionRate (uint ethAmount) internal view returns (uint) {
-        uint ethPrice = getPrice();
-        uint ethAmountInUSD = (ethPrice * ethAmount) / 1e18;
-        return ethAmountInUSD;
-    }
-
-}
 
 contract FundMe {
     using PriceConverter for uint256;
@@ -75,7 +55,9 @@ contract FundMe {
     receive() external payable {
         fund();
     }
+
     fallback() external payable {
         fund();
     }
+
 }
