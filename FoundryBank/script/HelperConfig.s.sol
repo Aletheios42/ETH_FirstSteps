@@ -28,10 +28,12 @@ contract HelperConfig is Script {
 
 	function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
 		NetworkConfig memory sepoliaConfig = NetworkConfig({priceFeed: 0x694AA1769357215DE4FAC081bf1f309aDC325306});
-	 }
-
-	function getAnvilEthConfig() public pure  returns (NetworkConfig memory){
-
+		 return sepoliaConfig;
 	}
+
+	function getAnvilEthConfig() public pure returns (NetworkConfig memory) {
+        // Reemplazar esto con la dirección correcta del price feed para Anvil
+        return NetworkConfig({priceFeed: address(0)});
+    }
 }
 

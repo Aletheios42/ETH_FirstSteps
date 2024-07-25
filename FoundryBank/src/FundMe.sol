@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 
 import {PriceConverter} from "./priceConverter.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import {console} from "forge-std/console.sol";
 
 error NotOwner();
 
@@ -11,9 +12,11 @@ contract FundMe {
 
  constructor(address priceFeed) {
         i_owner = msg.sender;
-          //address 0x694AA1769357215DE4FAC081bf1f309aDC325306 from https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1
+        //address 0x694AA1769357215DE4FAC081bf1f309aDC325306 from https://docs.chain.link/data-feeds/price-feeds/addresses?network=ethereum&page=1
         s_priceFeed = AggregatorV3Interface(priceFeed);
-    }
+	    console.log("FundMe owner address:", i_owner);
+        
+ }
 
     using PriceConverter for uint256;
 
