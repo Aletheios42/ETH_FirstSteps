@@ -3,15 +3,18 @@ pragma solidity ^0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 import {FundMe} from "../src/FundMe.sol";
-import {Mock} from "./Mock.sol";
+import {DeployFundMe} from "../script/DeployFundMe.s.sol";
+
+//import {Mock} from "./Mock.sol";
 
 contract FundMeTest is Test {
     FundMe fundMe;
-    Mock mockPriceConverter;
+   // Mock mockPriceConverter;
 
     function setUp() external {
-        fundMe = new FundMe();
-        mockPriceConverter = new Mock();
+	DeployFundMe deployFundMe = new DeployFundMe();
+	fundMe = deployFundMe.run();
+        //mockPriceConverter = new Mock(0x694AA1769357215DE4FAC081bf1f309aDC325306);
     }
 
     function testDemo() public {
@@ -23,7 +26,7 @@ contract FundMeTest is Test {
     }
 
     function testPriceFeedVersion() public {
-        uint version = mockPriceConverter.getVersion();
+        uint version = fundMe.getVersion();
         assertEq(version, 4);
     }
 
