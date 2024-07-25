@@ -16,10 +16,10 @@ contract FundMe {
     address[] public funders;
     mapping(address funder => uint256 amountFunded) public addressToAmount; 
 
-    address owner;
+    address public immutable i_owner;
     
     constructor() {
-        owner = msg.sender;
+        i_owner = msg.sender;
     }
 
     function fund() public payable { 
@@ -46,7 +46,7 @@ contract FundMe {
     }
 
         modifier onlyOwner() {
-        if(msg.sender == owner) {
+        if(msg.sender == i_owner) {
             revert NotOwner();
         }
         _;
@@ -61,3 +61,4 @@ contract FundMe {
     }
 
 }
+
