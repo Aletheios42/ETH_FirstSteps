@@ -27,6 +27,10 @@ contract FundMeTest is Test {
         assertEq(fundMe.MIN_USD(), 5e18);
     }
 
+    function testOwnerIsMsgSender() public {
+        assertEq(fundMe.getOwner(), msg.sender);
+    }
+
     function testPriceFeedVersion() public view {
         uint256 version = fundMe.getVersion();
         assertEq(version, 4);
@@ -42,19 +46,89 @@ contract FundMeTest is Test {
 	    uint256 amountFunded = fundMe.getAddressToAmountFunded(USER);
 	    assertEq(amountFunded, SEND_VALUE);
     }
-    function testAddsFunderToArrayOfFunders() public {
-        vm.prank(USER);
-        fundMe.fund{value: SEND_VALUE}();
 
+
+    modifier funded() {
+         vm.prank(USER);
+        fundMe.fund{value: SEND_VALUE}();
+        _;
+    }
+
+    function testAddsFunderToArrayOfFunders() public funded {
+       
         address funder = fundMe.getFunded(0);
         assertEq(funder, USER);
     }
-    function testOnlyOwnerCanWithdraw() public {
-        vm.prank(USER);
-	    fundMe.fund{value: SEND_VALUE}();
 
+
+    function testOnlyOwnerCanWithdraw() public funded {
         vm.expectRevert();
         vm.prank(USER);
         fundMe.withdraw();
     }
+
+    function testWitDrawWithASingleFunder() public funded {
+        //arrange
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+        uint256 startingFundMeBalance = address(fundMe).balance;
+        
+        //act
+        vm.prank(fundMe.getOwner());
+        fundMe.withdraw();
+        
+        //assert
+        uint256 endingOwnerBalance = fundMe.getOwner().balance;
+        uint256 endingFundMeBalance = address(fundMe).balance;
+        assertEq(endingFundMeBalance, 0);
+        assertEq(startingFundMeBalance + startingOwnerBalance, endingOwnerBalance);
+    }
+
+    function testWitDrawWMultipleFunder() public funded {
+        //arrange
+        uint160 numberOfFunders = 20; // to match bytes in address --> uint160
+        uint160 startingFunderIndex = 1; //USER is already there
+        
+        for(uint160 i = startingFunderIndex; i < numberOfFunders; i++) {
+            hoax(address(i), SEND_VALUE);
+            fundMe.fund{value: SEND_VALUE}();
+        }
+        
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+        uint256 startingFundMeBalance = address(fundMe).balance;
+        
+        //act
+        vm.startPrank(fundMe.getOwner());
+        fundMe.withdraw();
+        vm.stopPrank();
+
+        //assert
+        assertEq(address(fundMe).balance, 0);
+        assertEq(startingFundMeBalance + startingOwnerBalance, fundMe.getOwner().balance);
+    }
+
+
+
+    function testWitDrawWMultipleFunderCheaper() public funded {
+        //arrange
+        uint160 numberOfFunders = 20; // to match bytes in address --> uint160
+        uint160 startingFunderIndex = 1; //USER is already there
+        
+        for(uint160 i = startingFunderIndex; i < numberOfFunders; i++) {
+            hoax(address(i), SEND_VALUE);
+            fundMe.fund{value: SEND_VALUE}();
+        }
+        
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+        uint256 startingFundMeBalance = address(fundMe).balance;
+        
+        //act
+        vm.startPrank(fundMe.getOwner());
+        fundMe.cheaperWithdraw();
+        vm.stopPrank();
+
+        //assert
+        assertEq(address(fundMe).balance, 0);
+        assertEq(startingFundMeBalance + startingOwnerBalance, fundMe.getOwner().balance);
+    }
+
 }
