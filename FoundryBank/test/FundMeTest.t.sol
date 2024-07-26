@@ -7,15 +7,20 @@ import {DeployFundMe} from "../script/DeployFundMe.s.sol";
 import {HelperConfig, CodeConstants} from "../script/HelperConfig.s.sol";
 import {console} from "forge-std/console.sol";
 
-//import {Mock} from "./Mock.sol";
 
 contract FundMeTest is Test {
-    FundMe fundMe;
+    FundMe public fundMe;
     HelperConfig public helperConfig;
+    
+    address USER = makeAddr("user");
+    uint256 constant SEND_VALUE = 0.1 ether;
+    uint256 constant STARTING_BALANCE = 10 ether;
 
-    function setUp() external  {
-	DeployFundMe deployer = new DeployFundMe();
-	(fundMe, helperConfig) = deployer.deployFundMe();
+
+    function setUp() external {
+        DeployFundMe deployer = new DeployFundMe();
+        (fundMe, helperConfig) = deployer.deployFundMe();
+        vm.deal(USER,  STARTING_BALANCE);
     }
 
     function testDemo() public view {
@@ -23,18 +28,18 @@ contract FundMeTest is Test {
     }
 
     function testPriceFeedVersion() public view {
-        uint version = fundMe.getVersion();
+        uint256 version = fundMe.getVersion();
         assertEq(version, 4);
     }
-    
-    function testFailsWithoutEnoughETH() public {
-	    vm.expectRevert();
-	    fundMe.fund();
-    }
 
-     function testFundFailsWithoutEnoughETH() public {
-	    vm.expectRevert();
-	    fundMe.fund();
+    function testFundFailsWithoutEnoughETH() public {
+        vm.expectRevert();
+        fundMe.fund();
     }
-
+    function testFundUpdatesFundedDataStructure() public {
+        vm.prank(USER);
+	    fundMe.fund{value: SEND_VALUE}();
+	    uint amountFunded = fundMe.getAddressToAmountFunded(USER);
+	    assertEq(amountFunded, SEND_VALUE);
+    }
 }
