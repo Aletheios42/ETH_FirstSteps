@@ -9,7 +9,7 @@ import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {Test, console} from "forge-std/Test.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 
-contract InteractionsTest is  StdCheats, Test {
+contract InteractionsTest is StdCheats, Test {
     FundMe public fundMe;
     HelperConfig public helperConfig;
 
@@ -24,8 +24,8 @@ contract InteractionsTest is  StdCheats, Test {
     // uint256 public constant SEND_VALUE = 1000000000000000000;
 
     function setUp() external {
-             DeployFundMe deployer = new DeployFundMe();
-            (fundMe, helperConfig) = deployer.deployFundMe();
+        DeployFundMe deployer = new DeployFundMe();
+        (fundMe, helperConfig) = deployer.deployFundMe();
         vm.deal(USER, STARTING_USER_BALANCE);
     }
 
