@@ -10,3 +10,6 @@
 [submodule "FoundryBank/lib/foundry-devops"]
 	path = FoundryBank/lib/foundry-devops
 	url = https://github.com/ChainAccelOrg/foundry-devops
+[submodule "6.FoundryRaffle/lib/forge-std"]
+	path = 6.FoundryRaffle/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
