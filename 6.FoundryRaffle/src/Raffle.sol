@@ -33,29 +33,27 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
  * @dev Implement Chainlink VRF v2.5
  */
 contract Raffle is VRFConsumerBaseV2Plus {
-    /**
-     * ERROR *
-     */
+    /* Errors */
+    error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256 raffleState);
+    error Raffle__TransferFailed();
     error Raffle__SendMoreToEnterRaffle();
-    error Raffle__TrasferFailed();
-    error Raffle__NotOpen();
+    error Raffle__RaffleNotOpen();
 
-    /**
-        ENUM
-     */
-    
+    /* Type declarations */
     enum RaffleState {
         OPEN,
         CALCULATING
     }
 
+    /* State variables */
+
+    // Ruffle variables
     uint256 private immutable i_entranceFee;
     uint256 private immutable i_interval;
     address payable[] s_players;
     uint256 private s_lastTimeStamp;
     address private s_recentWinner;
 
-    /* State variables */
     // Chainlink VRF Variables
     uint256 private immutable i_subscriptionId;
     bytes32 private immutable i_gasLane;
@@ -64,11 +62,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
     uint32 private constant NUM_WORDS = 1;
     RaffleState private s_raffleState;
 
-    
-    /*
-        EVENTS 
-    */
-    event RaffleEntered(address indexed player);
+    /* Events */
+    event RequestedRaffleWinner(uint256 indexed requestId);
+    event RaffleEnter(address indexed player);
     event WinnerPicked(address indexed player);
 
     /* Functions */
@@ -94,16 +90,19 @@ contract Raffle is VRFConsumerBaseV2Plus {
     }
 
     function enterRaffle() public payable {
+        // require(msg.value >= i_entranceFee, "Not enough value sent");
+        // require(s_raffleState == RaffleState.OPEN, "Raffle is not open");
         if (msg.value < i_entranceFee) {
             revert Raffle__SendMoreToEnterRaffle();
         }
         if (s_raffleState != RaffleState.OPEN) {
-            revert Raffle__NotOpen();
+            revert Raffle__RaffleNotOpen();
         }
         s_players.push(payable(msg.sender));
-        emit RaffleEntered(msg.sender);
+        // Emit an event when we update a dynamic array or mapping
+        // Named events with the function name reversed
+        emit RaffleEnter(msg.sender);
     }
-
     //when should the winner be picked?
     /*
     * @dev this function will be called by chainlink nodes as parrt of automatation
@@ -112,7 +111,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     */
 
-   function checkUpkeep(bytes memory /* checkData */ )
+    function checkUpkeep(bytes memory /* checkData */ )
         public
         view
         returns (bool upkeepNeeded, bytes memory /* performData */ )
@@ -125,12 +124,17 @@ contract Raffle is VRFConsumerBaseV2Plus {
         return (upkeepNeeded, hex""); // hex"" -> No use of performData
     }
 
-    function pickWinner() 
-    public {
-        if (block.timestamp - s_lastTimeStamp > i_interval) {
-            revert();
+    /**
+     * @dev Once `checkUpkeep` is returning `true`, this function is called
+     * and it kicks off a Chainlink VRF call to get a random winner.
+     */
+    function performUpkeep(bytes calldata /* performData */ ) external {
+        (bool upkeepNeeded,) = checkUpkeep("");
+        // require(upkeepNeeded, "Upkeep not needed");
+        if (!upkeepNeeded) {
+            revert Raffle__UpkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
         }
-        
+
         s_raffleState = RaffleState.CALCULATING;
 
         // Will revert if subscription is not set and funded.
@@ -147,6 +151,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
                 )
             })
         );
+        emit RequestedRaffleWinner(requestId);
     }
 
     function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal virtual override {
@@ -156,17 +161,17 @@ contract Raffle is VRFConsumerBaseV2Plus {
         s_raffleState = RaffleState.OPEN;
         (bool success,) = recentWinner.call{value: address(this).balance}("");
         s_lastTimeStamp = block.timestamp;
-        s_players = new address payable [](0);
-        
+        s_players = new address payable[](0);
+
         if (!success) {
-            revert Raffle__TrasferFailed();
+            revert Raffle__TransferFailed();
         }
         emit WinnerPicked(s_recentWinner);
     }
+
     /**
      * GETTERS *
      */
-
     function getEntranceFee() external view returns (uint256) {
         return i_entranceFee;
     }
