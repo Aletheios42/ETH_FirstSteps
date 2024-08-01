@@ -13,3 +13,6 @@
 [submodule "6.FoundryRaffle/lib/forge-std"]
 	path = 6.FoundryRaffle/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "6.FoundryRaffle/lib/chainlink-brownie-contracts"]
+	path = 6.FoundryRaffle/lib/chainlink-brownie-contracts
+	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
