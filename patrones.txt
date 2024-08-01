@@ -1,0 +1,3 @@
+
+CODING CONTRACTS(src) ----->CEI  , Checks  , Effects, Interctions.
+CODING TEST(test) ------> AAA   , Arrange, Act, Assert. 
