@@ -69,9 +69,9 @@ contract HelperConfig is Script, CodeConstants {
             automationUpdateInterval: 30,
             raffleEntranceFee: 0.01 ether,
             callbackGasLimit: 500000,
-            vrfCoordinatorV2_5: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B,
-            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
-            account: 0x643315C9Be056cDEA171F4e7b2222a4ddaB9F88D
+            vrfCoordinatorV2_5: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B, //address of the random number provider in sepolia form chainlink
+            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789, //Mysubscription from chainlink VRF
+            account: 0x0c0574342e1CAe83b385520ca04dac495F444498 //Mymetamask
         });
 
         return sepoliaNetworkConfig;
