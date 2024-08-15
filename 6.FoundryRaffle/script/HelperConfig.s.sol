@@ -2,8 +2,9 @@
 
 pragma solidity 0.8.19;
 
-import {Script} from "forge-std/Script.sol";
+import {Script, console} from "forge-std/Script.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+import {LinkToken} from "test/mocks/LinkToken.sol";
 
 abstract contract CodeConstants {
     uint96 public MOCK_BASE_FEE = 0.25 ether;
@@ -49,6 +50,10 @@ contract HelperConfig is Script, CodeConstants {
         } else if (chainId == LOCAL_CHAIN_ID) {
             return getOrCreateAnvilEthConfig();
         } else {
+            console.log(
+                "esta es la direcciond del coordinator: ",
+                networkConfigs[chainId].vrfCoordinatorV2_5
+            );
             revert("HelperConfig__InvalidChainId");
         }
     }
@@ -59,7 +64,7 @@ contract HelperConfig is Script, CodeConstants {
         returns (NetworkConfig memory sepoliaNetworkConfig)
     {
         sepoliaNetworkConfig = NetworkConfig({
-            subscriptionId: 0,
+            subscriptionId: 83587997964746099346911720153126067685994569117533078971848767242578831067286, //chainlink subscriptioID
             gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
             automationUpdateInterval: 30,
             raffleEntranceFee: 0.01 ether,
@@ -83,6 +88,7 @@ contract HelperConfig is Script, CodeConstants {
                 MOCK_GAS_PRICE_LINK,
                 MOCK_WEI_PER_UNIT_LINK
             );
+        LinkToken linkToken = new LinkToken();
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
@@ -92,7 +98,7 @@ contract HelperConfig is Script, CodeConstants {
             raffleEntranceFee: 0.01 ether,
             callbackGasLimit: 500000,
             vrfCoordinatorV2_5: address(vrfCoordinatorV2_5Mock),
-            link: address(0), // Set to the appropriate LINK address or keep it 0
+            link: address(linkToken), // Set to the appropriate LINK address or keep it 0
             account: FOUNDRY_DEFAULT_SENDER
         });
 

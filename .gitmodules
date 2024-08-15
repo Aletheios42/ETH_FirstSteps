@@ -16,3 +16,6 @@
 [submodule "6.FoundryRaffle/lib/chainlink-brownie-contracts"]
 	path = 6.FoundryRaffle/lib/chainlink-brownie-contracts
 	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
+[submodule "6.FoundryRaffle/lib/solmate"]
+	path = 6.FoundryRaffle/lib/solmate
+	url = https://github.com/transmissions11/solmate
