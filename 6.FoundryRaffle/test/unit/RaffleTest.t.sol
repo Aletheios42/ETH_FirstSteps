@@ -7,6 +7,7 @@ import {Raffle} from "../../src/Raffle.sol";
 import {HelperConfig, CodeConstants} from "../../script/HelperConfig.s.sol";
 import {Test, console2} from "forge-std/Test.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+import {Vm} from "forge-std/Vm.sol";
 
 contract RaffleTest is Test, CodeConstants {
     Raffle public raffle;
@@ -111,5 +112,59 @@ contract RaffleTest is Test, CodeConstants {
         (bool upkeepNeeded, ) = raffle.checkUpkeep("");
         ////Assert
         assert(!upkeepNeeded);
+    }
+
+    /**************************************************************************/
+    /*                             PerformUpkeep                              */
+    /**************************************************************************/
+
+    function testperformUpkeepCanOnlyRunIfCheckUpdateIsTrue() public {
+        //Arrange
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + automationUpdateInterval + 1);
+        vm.roll(block.number + 1);
+        //Act  //Assert
+        raffle.performUpkeep("");
+    }
+
+    function testPerformUpkeepRevertIfCheckUpkeepIsFalse() public {
+        //Arrange
+        uint256 currentBalance = 0;
+        uint256 numberOfPlayers = 0;
+        Raffle.RaffleState rState = raffle.getRaffleState();
+
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        currentBalance = entranceFee + currentBalance;
+        numberOfPlayers = 1;
+        //Act //Asset
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Raffle.Raffle__UpkeepNotNeeded.selector,
+                currentBalance,
+                numberOfPlayers,
+                rState
+            )
+        );
+        raffle.performUpkeep("");
+    }
+
+    function testPerformUpkeepUpdateRaffleStateAndEmitsRequestId() public {
+        //Arrange
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: entranceFee}();
+        vm.warp(block.timestamp + automationUpdateInterval + 1);
+        vm.roll(block.number + 1);
+
+        //Act
+        vm.recordLogs();
+        raffle.performUpkeep("");
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        bytes32 requestId = entries[0].topics[1];
+        //Assert
+        Raffle.RaffleState raffleState = raffle.getRaffleState();
+        assert(uint256(requestId) > 0);
+        assert(uint256(raffleState) == 1); // 1 == Calculatin
     }
 }
