@@ -19,3 +19,6 @@
 [submodule "6.FoundryRaffle/lib/solmate"]
 	path = 6.FoundryRaffle/lib/solmate
 	url = https://github.com/transmissions11/solmate
+[submodule "6.FoundryRaffle/lib/foundry-devops"]
+	path = 6.FoundryRaffle/lib/foundry-devops
+	url = https://github.com/Cyfrin/foundry-devops
