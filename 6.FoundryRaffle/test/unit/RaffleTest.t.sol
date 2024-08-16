@@ -43,7 +43,7 @@ contract RaffleTest is Test, CodeConstants {
     }
 
     /**************************************************************************/
-    /*                                Modifier                                */
+    /*                               Modifiers                                */
     /**************************************************************************/
 
     modifier raffleEntered() {
@@ -51,6 +51,13 @@ contract RaffleTest is Test, CodeConstants {
         raffle.enterRaffle{value: entranceFee}();
         vm.warp(block.timestamp + automationUpdateInterval + 1);
         vm.roll(block.number + 1);
+        _;
+    }
+
+    modifier skipFork() {
+        if (block.chainid != LOCAL_CHAIN_ID) {
+            return;
+        }
         _;
     }
 
@@ -185,7 +192,7 @@ contract RaffleTest is Test, CodeConstants {
     //
     function testFullfilRandomWordsCanOnlyBeCalledAfterPerformUpkeep(
         uint256 randomRequestId
-    ) public raffleEntered {
+    ) public raffleEntered skipFork {
         //Arange
         vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
         VRFCoordinatorV2_5Mock(vrfCoordinatorV2_5).fulfillRandomWords(
@@ -197,6 +204,7 @@ contract RaffleTest is Test, CodeConstants {
     function testFulfillrandomWordsPicksWinnersResetsAndPaysMoney()
         public
         raffleEntered
+        skipFork
     {
         uint256 additionalEntrants = 3;
         uint256 startingIndex = 1;
