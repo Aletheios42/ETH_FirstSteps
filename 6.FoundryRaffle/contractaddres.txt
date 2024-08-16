@@ -11,3 +11,6 @@ Block: 6507888
 Paid: 0.00009763942702282 ETH (78086 gas * 1.25040887 gwei)
 
 ✅ Sequence #1 on sepolia | Total Paid: 0.00138808138740474 ETH (1110102 gas * avg 1.25040887 gwei)
+
+//note
+subscription and costumer are already pushed in chainlink, last checkpoint is to regsiter upkeep
