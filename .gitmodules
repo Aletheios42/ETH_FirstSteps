@@ -31,3 +31,9 @@
 [submodule "8.NFT/lib/forge-std"]
 	path = 8.NFT/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "8.NFT/lib/openzeppelin-contracts"]
+	path = 8.NFT/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "8.NFT/lib/foundry-devops"]
+	path = 8.NFT/lib/foundry-devops
+	url = https://github.com/Cyfrin/foundry-devops
