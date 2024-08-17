@@ -27,11 +27,11 @@ contract AnotherTokenTest is Test {
     /*                               Basic Test                               */
     /**************************************************************************/
 
-    function testBobBalance() public {
+    function testBobBalance() public view {
         assertEq(anotherToken.balanceOf(bob), STARTING_BALANCE);
     }
 
-    // I understand hardcoding amounts make no sense i shoud check for the diference in the assert, just playing
+    // I understand hardcoding amounts makes no sense i should check for the diference in the assert, just playing
     function testAllowance() public {
         uint256 allowanceAmount = 1000 * (10 ** 18);
 

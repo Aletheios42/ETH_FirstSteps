@@ -16,7 +16,7 @@ contract MintNft is Script {
             "BasicNft",
             block.chainid
         );
-        mintNftOnContract();
+        mintNftOnContract(mostRecentlyDeployed);
     }
 
     function mintNftOnContract(address contractAddress) public {
