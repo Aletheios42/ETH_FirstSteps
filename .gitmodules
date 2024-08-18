@@ -37,3 +37,6 @@
 [submodule "8.NFT/lib/foundry-devops"]
 	path = 8.NFT/lib/foundry-devops
 	url = https://github.com/Cyfrin/foundry-devops
+[submodule "9.StableCoin/lib/forge-std"]
+	path = 9.StableCoin/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
