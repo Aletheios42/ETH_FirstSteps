@@ -1,0 +1,8 @@
+1. relative Stability: Archored or pegged  ->1 $
+      chainlink para comprobar el precio
+      crear funciones para vender dolar y eth, para estabilizar.
+2. Stabiliti mechanism  (minting): algoritmic (decentralized)
+      la gente solo podra mintear si tienen suficiente colatral
+3 collateral:  Exogenous (cryto colateral eth and bitcoin)
+      Weth
+      WBit
