@@ -178,7 +178,14 @@ contract DSCEngine is ReentrancyGuard {
         }
     }
 
-    function redeemCollateralForDsc() external {}
+    function redeemCollateralForDsc(
+        address tokenCollateralAddress,
+        uint256 amountCollateral,
+        uint256 amountDscToBurn
+    ) external {
+        burnDsc(amountDscToBurn);
+        redeemColateral(tokenCollateralAddress, amountCollateral);
+    }
 
     //Healfactor must be over 1
     //
@@ -186,7 +193,7 @@ contract DSCEngine is ReentrancyGuard {
     function redeemColateral(
         address tokenCollateralAddress,
         uint256 amountCollateral
-    ) external moreThanZero(amountCollateral) nonReentrant {
+    ) public moreThanZero(amountCollateral) nonReentrant {
         // el compilador le hace revertir por proteccion contra unsafe mapping
         s_collateralDeposited[msg.sender][
             tokenCollateralAddress
@@ -224,7 +231,7 @@ contract DSCEngine is ReentrancyGuard {
         }
     }
 
-    function burnDsc(uint256 amount) external moreThanZero(amount) {
+    function burnDsc(uint256 amount) public moreThanZero(amount) {
         s_DscMinted[msg.sender] -= amount;
 
         bool success = i_dsc.transferFrom(msg.sender, address(this), amount);
