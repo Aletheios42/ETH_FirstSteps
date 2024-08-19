@@ -56,6 +56,7 @@ contract DSCEngine is ReentrancyGuard {
     error DSCEngine__BreaksHealthFactor(uint256 userHealthFactor);
     error DSCEngine__MintFailed();
     error DSC__HealthFactorKO();
+    error DSC__HealthFactorNotImproved();
 
     /**************************************************************************/
     /*                            State Variables                             */
@@ -226,14 +227,7 @@ contract DSCEngine is ReentrancyGuard {
     }
 
     function burnDsc(uint256 amount) public moreThanZero(amount) {
-        s_DscMinted[msg.sender] -= amount;
-
-        bool success = i_dsc.transferFrom(msg.sender, address(this), amount);
-        if (!success) {
-            revert DSCEngine__TrasferFailed();
-        }
-
-        i_dsc.burn(amount);
+        _burnDsc(amount, msg.sender, msg.sender);
         _revertIfHealthFactorIsBroken(msg.sender);
     }
 
@@ -259,6 +253,13 @@ contract DSCEngine is ReentrancyGuard {
         uint256 totalCollateralToRedeem = tokenAmountFromDebtCovered +
             bonusCollateral;
         _redeemColateral(user, msg.sender, collateral, totalCollateralToRedeem);
+        _burnDsc(debtToCover, user, msg.sender);
+
+        uint256 endingUserHealthFactor = _healthFactor(user);
+        if (endingUserHealthFactor >= startingUserHealthFactor) {
+            revert DSC__HealthFactorNotImproved();
+        }
+        _revertIfHealthFactorIsBroken(msg.sender);
     }
 
     function getHealthFactor() external view {}
@@ -266,6 +267,25 @@ contract DSCEngine is ReentrancyGuard {
     /**************************************************************************/
     /*                      Private & Internal Functions                      */
     /**************************************************************************/
+
+    function _burnDsc(
+        uint256 amountDscToBurn,
+        address onBehalfOf,
+        address dscFrom
+    ) private {
+        s_DscMinted[onBehalfOf] -= amountDscToBurn;
+
+        bool success = i_dsc.transferFrom(
+            dscFrom,
+            address(this),
+            amountDscToBurn
+        );
+        if (!success) {
+            revert DSCEngine__TrasferFailed();
+        }
+
+        i_dsc.burn(amountDscToBurn);
+    }
 
     function _redeemColateral(
         address from,
