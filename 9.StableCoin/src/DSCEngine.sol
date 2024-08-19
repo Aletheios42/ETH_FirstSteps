@@ -82,6 +82,12 @@ contract DSCEngine is ReentrancyGuard {
         uint256 indexed amount
     );
 
+    event CollateralRedeemed(
+        address indexed user,
+        address indexed token,
+        uint256 indexed amount
+    );
+
     /**************************************************************************/
     /*                               Modifiers                                */
     /**************************************************************************/
@@ -122,6 +128,21 @@ contract DSCEngine is ReentrancyGuard {
     /**************************************************************************/
     /*                           External Functions                           */
     /**************************************************************************/
+    /*
+     * pattern: CEI
+     * @param tokenCollateralAddress The address of the token  to deposit as collateral
+     * @param amountCollateral The amount of collateral to deposit
+     * @param amountDscToMint the amount of Dsc that will be minted
+     *
+     */
+    function depositCollateralAndMint(
+        address tokenCollateralAddress,
+        uint256 amountCollateral,
+        uint256 amountDscToMint
+    ) public {
+        depositCollateral(tokenCollateralAddress, amountCollateral);
+        mintDsc(amountDscToMint);
+    }
 
     /*
      * pattern: CEI
@@ -133,7 +154,7 @@ contract DSCEngine is ReentrancyGuard {
         address tokenCollateralAddress,
         uint256 amountCollateral
     )
-        external
+        public
         moreThanZero(amountCollateral)
         isAllowedToken(tokenCollateralAddress)
         nonReentrant
@@ -159,7 +180,32 @@ contract DSCEngine is ReentrancyGuard {
 
     function redeemCollateralForDsc() external {}
 
-    function redeemColateral() external {}
+    //Healfactor must be over 1
+    //
+    //CEI: Check. Effect, Interactions
+    function redeemColateral(
+        address tokenCollateralAddress,
+        uint256 amountCollateral
+    ) external moreThanZero(amountCollateral) nonReentrant {
+        // el compilador le hace revertir por proteccion contra unsafe mapping
+        s_collateralDeposited[msg.sender][
+            tokenCollateralAddress
+        ] -= amountCollateral;
+        emit CollateralRedeemed(
+            msg.sender,
+            tokenCollateralAddress,
+            amountCollateral
+        );
+
+        bool success = IERC20(tokenCollateralAddress).transfer(
+            msg.sender,
+            amountCollateral
+        );
+        if (!success) {
+            revert DSCEngine__TrasferFailed();
+        }
+        _revertIfHealthFactorIsBroken(msg.sender);
+    }
 
     /*
      * @notice follow CEI
@@ -169,7 +215,7 @@ contract DSCEngine is ReentrancyGuard {
      */
     function mintDsc(
         uint256 amountDscToMint
-    ) external moreThanZero(amountDscToMint) nonReentrant {
+    ) public moreThanZero(amountDscToMint) nonReentrant {
         s_DscMinted[msg.sender] += amountDscToMint;
         _revertIfHealthFactorIsBroken(msg.sender);
         bool minted = i_dsc.mint(msg.sender, amountDscToMint);
@@ -178,7 +224,17 @@ contract DSCEngine is ReentrancyGuard {
         }
     }
 
-    function burnDsc() external {}
+    function burnDsc(uint256 amount) external moreThanZero(amount) {
+        s_DscMinted[msg.sender] -= amount;
+
+        bool success = i_dsc.transferFrom(msg.sender, address(this), amount);
+        if (!success) {
+            revert DSCEngine__TrasferFailed();
+        }
+
+        i_dsc.burn(amount);
+        _revertIfHealthFactorIsBroken(msg.sender);
+    }
 
     function liquidate() external {}
 
