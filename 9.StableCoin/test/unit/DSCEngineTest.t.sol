@@ -68,7 +68,7 @@ contract DSCEngineTest is Test {
     /*                               Price_Test                               */
     /**************************************************************************/
 
-    function testUsdValue() public view {
+    function testUsdValue() public {
         uint256 ethAmount = 15e18;
         uint256 expectedUsd = 30000e18;
 
@@ -76,7 +76,7 @@ contract DSCEngineTest is Test {
         assertEq(expectedUsd, actualUsd);
     }
 
-    function testGetTokenAmountFromUsd() public view {
+    function testGetTokenAmountFromUsd() public {
         uint256 usdAmount = 100 ether;
         //2000$ / 100ether ----> 0.05
         uint256 expectedWeth = 0.05 ether;
