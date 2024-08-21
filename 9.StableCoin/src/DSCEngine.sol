@@ -190,13 +190,13 @@ contract DSCEngine is ReentrancyGuard {
         uint256 amountDscToBurn
     ) external {
         burnDsc(amountDscToBurn);
-        redeemColateral(tokenCollateralAddress, amountCollateral);
+        redeemCollateral(tokenCollateralAddress, amountCollateral);
     }
 
     //Healfactor must be over 1
     //
     //CEI: Check. Effect, Interactions
-    function redeemColateral(
+    function redeemCollateral(
         address tokenCollateralAddress,
         uint256 amountCollateral
     ) public moreThanZero(amountCollateral) nonReentrant {
@@ -260,6 +260,13 @@ contract DSCEngine is ReentrancyGuard {
             revert DSC__HealthFactorNotImproved();
         }
         _revertIfHealthFactorIsBroken(msg.sender);
+    }
+
+    function getCollateralBalanceOfUser(
+        address user,
+        address token
+    ) external view returns (uint256) {
+        return s_collateralDeposited[user][token];
     }
 
     function getHealthFactor() external view {}
