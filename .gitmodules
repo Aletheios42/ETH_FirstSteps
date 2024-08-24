@@ -58,3 +58,6 @@
 [submodule "10.MerkleAirdrop/lib/foundry-devops"]
 	path = 10.MerkleAirdrop/lib/foundry-devops
 	url = https://github.com/cyfrin/foundry-devops
+[submodule "11.Proxy/lib/forge-std"]
+	path = 11.Proxy/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
