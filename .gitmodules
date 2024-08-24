@@ -67,3 +67,6 @@
 [submodule "11.Proxy/lib/openzeppelin-contracts-upgradeable"]
 	path = 11.Proxy/lib/openzeppelin-contracts-upgradeable
 	url = https://github.com/openzeppelin/openzeppelin-contracts-upgradeable
+[submodule "11.Proxy/lib/foundry-devops"]
+	path = 11.Proxy/lib/foundry-devops
+	url = https://github.com/chainaccelorg/foundry-devops
