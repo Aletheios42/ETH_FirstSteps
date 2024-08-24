@@ -39,7 +39,7 @@ contract MerkleAirdropTest is Test, ZkSyncChainChecker {
     function testUsersCanClaim() public {
         uint256 startingBalance = token.balanceOf(user);
 
-        vm.prank(user);
+        vm.startPrank(user);
         airdrop.claim(user, AMOUNT_TO_CLAIM, PROOF);
 
         uint256 endingBalance = token.balanceOf(user);
