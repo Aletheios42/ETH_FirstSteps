@@ -70,3 +70,12 @@
 [submodule "11.Proxy/lib/foundry-devops"]
 	path = 11.Proxy/lib/foundry-devops
 	url = https://github.com/chainaccelorg/foundry-devops
+[submodule "12.Account_Abstraction/lib/forge-std"]
+	path = 12.Account_Abstraction/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "12.Account_Abstraction/lib/account-abstraction"]
+	path = 12.Account_Abstraction/lib/account-abstraction
+	url = https://github.com/eth-infinitism/account-abstraction
+[submodule "12.Account_Abstraction/lib/openzeppelin-contracts"]
+	path = 12.Account_Abstraction/lib/openzeppelin-contracts
+	url = https://github.com/openzeppelin/openzeppelin-contracts
