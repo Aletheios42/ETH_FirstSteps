@@ -22,7 +22,7 @@
 
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.24;
 
 /**
  * @title MinimalAccount
@@ -80,6 +80,8 @@ contract MinimalAccount is IAccount, Ownable {
     constructor(address entryPoint) Ownable(msg.sender) {
         i_entryPoint = IEntryPoint(entryPoint);
     }
+
+    receive() external payable {}
 
     /**************************************************************************/
     /*                           External Functions                           */
