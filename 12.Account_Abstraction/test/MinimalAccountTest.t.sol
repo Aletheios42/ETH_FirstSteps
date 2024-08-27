@@ -14,6 +14,7 @@ import {IEntryPoint} from "lib/account-abstraction/contracts/interfaces/IEntryPo
 
 contract MinimalAccountTest is Test {
     using MessageHashUtils for bytes32;
+
     HelperConfig helperConfig;
     MinimalAccount minimalAccount;
     ERC20Mock usdc;
@@ -65,7 +66,7 @@ contract MinimalAccountTest is Test {
         minimalAccount.execute(dest, value, functionData);
     }
 
-    function testRecoverSingOp() public {
+    function testRecoverSignOp() public {
         //Arrange
         assertEq(usdc.balanceOf(address(minimalAccount)), 0);
         address dest = address(usdc);
@@ -82,10 +83,10 @@ contract MinimalAccountTest is Test {
             functionData
         );
         PackedUserOperation memory packedUserOp = sendPackedUserOp
-            .gerenatedSignedUserOperation(
+            .generateSignedUserOperation(
                 executeCallData,
-                msg.sender,
-                helperConfig.getConfig()
+                helperConfig.getConfig(),
+                msg.sender
             );
         bytes32 userOperationHash = IEntryPoint(
             helperConfig.getConfig().entryPoint
