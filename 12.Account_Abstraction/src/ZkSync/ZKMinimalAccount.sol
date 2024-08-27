@@ -43,14 +43,26 @@ contract ZKMinimalAccount is IAccount, Ownable {
     error ZkMinimalAccount__FailedToPay();
     error ZkMinimalAccount__InvalidSignature();
 
+    /**************************************************************************/
+    /*                               Modifiers                                */
+    /**************************************************************************/
+
     modifier requireFromBootLoader() {
         if (msg.sender != BOOTLOADER_FORMAL_ADDRESS) {
             revert ZkMinimalAccount__NotFromBootLoader();
         }
         _;
     }
+    modifier requireFromBootLoaderOrOwner() {
+        if (msg.sender != BOOTLOADER_FORMAL_ADDRESS && msg.sender != owner()) {
+            revert ZkMinimalAccount__NotFromBootLoaderOrOwner();
+        }
+        _;
+    }
 
     constructor() Ownable(msg.sender) {}
+
+    receive() external payable {}
 
     /**************************************************************************/
     /*                           External Functions                           */
@@ -69,39 +81,30 @@ contract ZKMinimalAccount is IAccount, Ownable {
     }
 
     function executeTransaction(
-        bytes32 _txHash,
-        bytes32 _suggestedSignedHash,
+        bytes32 /*_txHash*/,
+        bytes32 /*_suggestedSignedHash*/,
         Transaction memory _transaction
-    ) external payable {
-        address to = address(uint160(_transaction.to));
-        uint128 value = Utils.safeCastToU128(_transaction.value);
-        bytes memory data = _transaction.data;
-        bool success;
-        assembly {
-            success := call(
-                gas(),
-                to,
-                value,
-                add(data, 0x20),
-                mload(data),
-                0,
-                0
-            )
-        }
-        if (!success) {
-            revert ZkMinimalAccount__ExecutionFailed();
-        }
+    ) external payable requireFromBootLoaderOrOwner {
+        _executeTransaction(_transaction);
     }
 
     function executeTransactionFromOutside(
         Transaction memory _transaction
-    ) external payable {}
+    ) external payable {
+        _validateTransaction(_transaction);
+        _executeTransaction(_transaction);
+    }
 
     function payForTransaction(
-        bytes32 _txHash,
-        bytes32 _suggestedSignedHash,
+        bytes32 /*_txHash*/,
+        bytes32 /*_suggestedSignedHash*/,
         Transaction memory _transaction
-    ) external payable {}
+    ) external payable {
+        bool success = _transaction.payToTheBootloader();
+        if (!success) {
+            revert ZkMinimalAccount__NotFromBootLoader();
+        }
+    }
 
     function prepareForPaymaster(
         bytes32 _txHash,
@@ -146,5 +149,36 @@ contract ZKMinimalAccount is IAccount, Ownable {
             magic = bytes4(0);
         }
         return magic;
+    }
+
+    function _executeTransaction(Transaction memory _transaction) internal {
+        address to = address(uint160(_transaction.to));
+        uint128 value = Utils.safeCastToU128(_transaction.value);
+        bytes memory data = _transaction.data;
+        if (to == address(DEPLOYER_SYSTEM_CONTRACT)) {
+            uint32 gas = Utils.safeCastToU32(gasleft());
+            SystemContractsCaller.systemCallWithPropagatedRevert(
+                gas,
+                to,
+                value,
+                data
+            );
+        } else {
+            bool success;
+            assembly {
+                success := call(
+                    gas(),
+                    to,
+                    value,
+                    add(data, 0x20),
+                    mload(data),
+                    0,
+                    0
+                )
+            }
+            if (!success) {
+                revert ZkMinimalAccount__ExecutionFailed();
+            }
+        }
     }
 }
